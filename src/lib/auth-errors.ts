@@ -1,4 +1,4 @@
-import { SUPABASE_MISSING_CONFIG_MESSAGE } from "@/lib/supabase/env";
+import { SUPABASE_MISSING_CONFIG_MESSAGE } from "@/lib/constants";
 
 export function friendlyAuthError(message?: string | null) {
   const value = (message ?? "").toLowerCase();

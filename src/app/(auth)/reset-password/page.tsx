@@ -5,7 +5,7 @@ import { useState } from "react";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { PasswordField } from "@/components/auth/password-field";
 import { friendlyAuthError } from "@/lib/auth-errors";
-import { createClient, hasSupabaseConfig } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { passwordStrength } from "@/lib/utils";
 
 export default function ResetPasswordPage() {
@@ -26,10 +26,6 @@ export default function ResetPasswordPage() {
     }
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
-      return;
-    }
-    if (!hasSupabaseConfig()) {
-      setError("Supabase is not configured yet.");
       return;
     }
 

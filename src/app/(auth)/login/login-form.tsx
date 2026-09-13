@@ -3,19 +3,20 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GoogleButton } from "@/components/auth/google-button";
 import { PasswordField } from "@/components/auth/password-field";
 import { friendlyAuthError } from "@/lib/auth-errors";
-import { createClient, hasSupabaseConfig } from "@/lib/supabase/client";
-import {
-  authRedirectUrl,
-  isGoogleAuthEnabled,
-  SUPABASE_MISSING_CONFIG_MESSAGE,
-} from "@/lib/supabase/env";
+import { SUPABASE_MISSING_CONFIG_MESSAGE } from "@/lib/constants";
+import { createClient } from "@/lib/supabase/client";
+import { browserAuthRedirectUrl } from "@/lib/supabase/public-env";
 import { isValidEmail } from "@/lib/utils";
 
-export function LoginForm() {
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const googleAuthEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
+
+export function LoginForm({ configured }: { configured: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/dashboard";
@@ -34,6 +35,15 @@ export function LoginForm() {
   );
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const ready = Boolean(supabaseUrl && supabaseAnonKey) || configured;
+
+  useEffect(() => {
+    console.info("[funaab-auth-login]", {
+      hasUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+      hasAnonKey: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+      serverConfigured: configured,
+    });
+  }, [configured]);
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -45,10 +55,6 @@ export function LoginForm() {
     }
     if (!password) {
       setError("Please enter your password.");
-      return;
-    }
-    if (!hasSupabaseConfig()) {
-      setError(SUPABASE_MISSING_CONFIG_MESSAGE);
       return;
     }
 
@@ -71,19 +77,16 @@ export function LoginForm() {
 
       router.push(next.startsWith("/") ? next : "/dashboard");
       router.refresh();
-    } catch {
-      setError("Something went wrong. Please check your connection and try again.");
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message : "";
+      setError(friendlyAuthError(message));
     } finally {
       setLoading(false);
     }
   }
 
   async function signInWithGoogle() {
-    if (!hasSupabaseConfig()) {
-      setError(SUPABASE_MISSING_CONFIG_MESSAGE);
-      return;
-    }
-    if (!isGoogleAuthEnabled()) {
+    if (!googleAuthEnabled) {
       setError("Google sign-in is not enabled yet. Please use email and password.");
       return;
     }
@@ -93,15 +96,19 @@ export function LoginForm() {
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: authRedirectUrl(next.startsWith("/") ? next : "/dashboard", window.location.origin),
+          redirectTo: browserAuthRedirectUrl(
+            next.startsWith("/") ? next : "/dashboard",
+            window.location.origin,
+          ),
         },
       });
       if (oauthError) {
         setError(friendlyAuthError(oauthError.message));
-        setGoogleLoading(false);
       }
-    } catch {
-      setError("Something went wrong. Please check your connection and try again.");
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message : "";
+      setError(friendlyAuthError(message));
+    } finally {
       setGoogleLoading(false);
     }
   }
@@ -118,7 +125,7 @@ export function LoginForm() {
         </p>
       </div>
 
-      {!hasSupabaseConfig() || error === SUPABASE_MISSING_CONFIG_MESSAGE ? (
+      {!ready ? (
         <p
           className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm text-amber-950"
           role="status"

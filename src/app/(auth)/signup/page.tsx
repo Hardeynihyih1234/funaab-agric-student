@@ -39,7 +39,11 @@ export default async function SignupPage() {
       cornerLabel="Already have an account?"
       cornerAction="Sign In"
     >
-      <SignupForm colleges={colleges} levels={levels} />
+      <SignupForm
+        configured={hasSupabaseConfig()}
+        colleges={colleges}
+        levels={levels}
+      />
     </AuthShell>
   );
 }

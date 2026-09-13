@@ -6,6 +6,9 @@ export const APP_FOOTER_MOTTO = "AGRICULTURE FOR A BETTER TOMORROW";
 export const UNIVERSITY_NAME = "FEDERAL UNIVERSITY OF AGRICULTURE, ABEOKUTA";
 export const NON_MAJOR_NOTICE = "For Non-Major Students Only";
 
+export const SUPABASE_MISSING_CONFIG_MESSAGE =
+  "Signup and sign-in need your Supabase Project URL and public/anon key. Put them in .env.local as NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then restart npm run dev.";
+
 export const SIGNUP_LEVELS = [
   { code: "100", name: "100 LEVEL" },
   { code: "200", name: "200 LEVEL" },

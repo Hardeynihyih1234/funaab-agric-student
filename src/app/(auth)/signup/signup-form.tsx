@@ -11,22 +11,24 @@ import {
   NON_MAJOR_NOTICE,
   SIGNUP_COLLEGES,
   SIGNUP_LEVELS,
+  SUPABASE_MISSING_CONFIG_MESSAGE,
   withSignupFallbacks,
   type SignupOption,
 } from "@/lib/constants";
 import { createClient } from "@/lib/supabase/client";
-import {
-  authRedirectUrl,
-  hasSupabaseConfig,
-  isGoogleAuthEnabled,
-  SUPABASE_MISSING_CONFIG_MESSAGE,
-} from "@/lib/supabase/env";
+import { browserAuthRedirectUrl } from "@/lib/supabase/public-env";
 import { isValidEmail, passwordStrength } from "@/lib/utils";
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const googleAuthEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
+
 export function SignupForm({
+  configured,
   colleges,
   levels,
 }: {
+  configured: boolean;
   colleges: SignupOption[];
   levels: SignupOption[];
 }) {
@@ -43,6 +45,7 @@ export function SignupForm({
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const ready = Boolean(supabaseUrl && supabaseAnonKey) || configured;
 
   const strength = passwordStrength(password);
 
@@ -75,10 +78,6 @@ export function SignupForm({
       setError("Please select your college.");
       return;
     }
-    if (!hasSupabaseConfig()) {
-      setError(SUPABASE_MISSING_CONFIG_MESSAGE);
-      return;
-    }
 
     setLoading(true);
     try {
@@ -96,7 +95,7 @@ export function SignupForm({
             college_code: selectedCollege?.code,
             level_code: selectedLevel?.code,
           },
-          emailRedirectTo: authRedirectUrl("/dashboard", window.location.origin),
+          emailRedirectTo: browserAuthRedirectUrl("/dashboard", window.location.origin),
         },
       });
 
@@ -112,19 +111,16 @@ export function SignupForm({
       }
 
       setSuccess("Account created. Check your email to confirm your address, then sign in.");
-    } catch {
-      setError("Something went wrong. Please check your connection and try again.");
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message : "";
+      setError(friendlyAuthError(message));
     } finally {
       setLoading(false);
     }
   }
 
   async function signInWithGoogle() {
-    if (!hasSupabaseConfig()) {
-      setError(SUPABASE_MISSING_CONFIG_MESSAGE);
-      return;
-    }
-    if (!isGoogleAuthEnabled()) {
+    if (!googleAuthEnabled) {
       setError("Google sign-in is not enabled yet. Please use email and password.");
       return;
     }
@@ -134,7 +130,7 @@ export function SignupForm({
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: authRedirectUrl("/dashboard", window.location.origin),
+          redirectTo: browserAuthRedirectUrl("/dashboard", window.location.origin),
         },
       });
       if (oauthError) {
@@ -159,7 +155,7 @@ export function SignupForm({
         </p>
       </div>
 
-      {!hasSupabaseConfig() || error === SUPABASE_MISSING_CONFIG_MESSAGE ? (
+      {!ready ? (
         <p
           className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm text-amber-950"
           role="status"

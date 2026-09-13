@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Mail } from "lucide-react";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { friendlyAuthError } from "@/lib/auth-errors";
-import { createClient, hasSupabaseConfig } from "@/lib/supabase/client";
-import { authRedirectUrl } from "@/lib/supabase/env";
+import { createClient } from "@/lib/supabase/client";
+import { browserAuthRedirectUrl } from "@/lib/supabase/public-env";
 import { isValidEmail } from "@/lib/utils";
 
 export default function ForgotPasswordPage() {
@@ -23,16 +23,12 @@ export default function ForgotPasswordPage() {
       setError("Please enter a valid email address.");
       return;
     }
-    if (!hasSupabaseConfig()) {
-      setError("Supabase is not configured yet. Add your environment variables to continue.");
-      return;
-    }
 
     setLoading(true);
     try {
       const supabase = createClient();
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: authRedirectUrl("/reset-password", window.location.origin),
+        redirectTo: browserAuthRedirectUrl("/reset-password", window.location.origin),
       });
       if (resetError) {
         setError(friendlyAuthError(resetError.message));
