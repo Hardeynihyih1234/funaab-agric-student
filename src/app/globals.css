@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4faf4;
+  --foreground: #12201a;
+  --funaab-green: #0a7a33;
+  --funaab-green-dark: #066227;
+  --funaab-green-soft: #e8f6ec;
+  --ink: #12201a;
+  --muted: #5c6d64;
+  --line: #d7e4db;
+  --card: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-funaab: var(--funaab-green);
+  --color-funaab-dark: var(--funaab-green-dark);
+  --color-funaab-soft: var(--funaab-green-soft);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-card: var(--card);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+::selection {
+  background: #c8ebcf;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--funaab-green);
+  outline-offset: 2px;
+}
+
+.auth-card {
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 24px 80px rgba(16, 40, 24, 0.16);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(18px);
+}
+
+.safe-bottom {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 280ms ease-out;
+}
