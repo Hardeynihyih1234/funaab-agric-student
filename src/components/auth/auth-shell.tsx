@@ -23,8 +23,9 @@ export function AuthShell({
         alt="FUNAAB campus entrance"
         fill
         priority
+        unoptimized
         sizes="100vw"
-        className="object-cover object-top"
+        className="object-cover object-center"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-white/20 to-[#eef6ef]" />
 

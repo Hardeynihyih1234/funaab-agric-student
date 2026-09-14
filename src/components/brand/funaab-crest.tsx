@@ -16,6 +16,7 @@ export function FunaabCrest({
       height={size}
       className={cn("mx-auto object-contain", className)}
       priority
+      unoptimized
     />
   );
 }

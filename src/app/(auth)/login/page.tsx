@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <AuthShell
-      backgroundSrc="/images/campus-entrance-login.jpg"
+      backgroundSrc="/images/campus-entrance.jpg"
       cornerHref="/signup"
       cornerLabel="Don't have an account?"
       cornerAction="Sign Up"
