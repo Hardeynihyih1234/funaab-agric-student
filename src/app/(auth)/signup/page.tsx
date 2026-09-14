@@ -34,7 +34,7 @@ export default async function SignupPage() {
 
   return (
     <AuthShell
-      backgroundSrc="/images/campus-entrance-signup.jpg"
+      backgroundSrc="/images/campus-entrance.jpg"
       cornerHref="/login"
       cornerLabel="Already have an account?"
       cornerAction="Sign In"
